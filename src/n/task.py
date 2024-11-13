@@ -4,6 +4,29 @@ from copy import deepcopy
 from enum import Enum, auto
 
 
+# def calculate(n: int):
+#     cache = {}
+#     temp = []
+#     n_original = n
+#
+#     while n % 3 == 0:
+#         temp.append(n)
+#         n = n // 3
+#
+#     while n % 2 == 0:
+#         temp.append(n)
+#         n = n // 2
+#
+#     print(temp)
+#
+#     (num, trace) = calculate_inner(n, 1, cache)
+#     trace = list(reversed(trace))
+#     trace.extend(temp)
+#     # r = (res[0],)
+#     return (num + len(temp), trace)
+#
+
+
 def calculate(
     goal: int, n: int, cache: Dict[int, Tuple[int, List[int]]]
 ) -> Tuple[int, List[int]]:
@@ -92,8 +115,8 @@ with open("input.txt") as f:
     n = int(f.readline()[:-1])
 
 # n = int(input())
-# result = calculate(n, 1, {})
-result = calculate_stack(n)
+result = calculate(n, 1, {})
+# result = calculate_stack(n)
 
 print(result[0])
 

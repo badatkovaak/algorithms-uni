@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: [ -I./include -xc -Wall -Wextra -Wpedantic -Wshadow -Wno-unused-function -Wcast-qual -Wignored-qualifiers -Wno-comment -Wsign-compare -Wno-unknown-warning-option -Wno-psabi -Wno-mismatched-new-delete -Wimplicit-fallthrough
+]
+  Compiler: clang
