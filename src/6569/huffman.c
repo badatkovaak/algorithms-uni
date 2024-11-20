@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -75,24 +76,67 @@ TreeLeaf *create_huffman_codes(char *str, unsigned long len) {
     unsigned *array = malloc(sizeof(unsigned) * 26);
     memset(array, 0, sizeof(unsigned) * 26);
 
+    puts("This function doesn't need newline.");
+
     for (unsigned i = 0; i < len; i++)
         array[str[i] - 'a']++;
+
+    for (int i = 0; i < 26; i++) {
+        printf("array - %u\n", array[i]);
+    }
+
+    puts("here1");
 
     TreeLeaf **leaves = malloc(sizeof(TreeLeaf) * 26);
     for (unsigned i = 'a'; i <= 'z'; i++)
         leaves[i - 'a'] = create_tree_leaf(i, array[i - 'a']);
 
+    for (int i = 0; i <= 25; i++) {
+        if (array[leaves[i]->data - 'a'] > 0)
+            printf("%c\n", leaves[i]->data);
+    }
+
+    puts("here2");
     quicksort((void **)leaves, 0, 25, compare_tree_nodes);
 
-    LinkedList *leaves_list = malloc(sizeof(LinkedList));
-    *leaves_list = (LinkedList){0, leaves[25]};
+    puts("here3");
+    for (int i = 0; i <= 25; i++) {
+        printf("%c\n", leaves[i]->data);
+    }
 
-    for (unsigned i = 24; i >= 0; i--)
-        push(leaves_list, leaves[i]);
+    LinkedList *leaves_list = malloc(sizeof(LinkedList));
+    /**leaves_list = (LinkedList){0, leaves[25]};*/
+    for (int i = 25; i >= 0; i--) {
+        if (array[leaves[i]->data - 'a'] > 0) {
+            *leaves_list = (LinkedList){0, leaves_list};
+            break;
+        }
+
+        if (i == 0)
+            __builtin_trap();
+    }
+
+    puts("here4");
+    for (int i = 24; i >= 0; i--) {
+        printf("%c\n", leaves[i]->data);
+        if (array[i] > 0)
+            push(leaves_list, leaves[i]);
+    }
+
+    puts("here5");
+    LinkedList *current = leaves_list;
+    while (current) {
+        printf("%c \n", *(char *)current->data);
+        current = current->next;
+    }
 
     /*while (leaves_list->next) {*/
     /*}*/
 
     return 0;
 }
-int main() { return 0; }
+
+int main() {
+    char *str = "abacabad";
+    create_huffman_codes(str, strlen(str));
+}

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub fn task(n: u32) -> (u32, Vec<u32>) {
     let mut cache = HashMap::<u32, (u32, Vec<u32>)>::new();
     task_internal(n, 1, &mut cache);

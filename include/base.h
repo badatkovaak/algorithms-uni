@@ -1,6 +1,8 @@
 #ifndef BASE_H
 #define BASE_H
 
+#define magic(c) sizeof(c)
+
 #ifdef LIST
 
 #ifndef LIST_MALLOC

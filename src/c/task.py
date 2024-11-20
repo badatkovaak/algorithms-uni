@@ -1,6 +1,9 @@
-def find_pattern(m):
-    pattern = [0, 1]
-    i = 2
+from typing import List
+
+
+def find_pattern(m: int):
+    pattern: List[int] = [0, 1]
+    i: int = 2
 
     while True:
         f = (pattern[i - 1] + pattern[i - 2]) % m
