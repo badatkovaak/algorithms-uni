@@ -59,6 +59,17 @@ void *pop(LinkedList *list) {
     return res;
 }
 
+int list_length(LinkedList *list) {
+    int len = 1;
+
+    while (list->next) {
+        len++;
+        list = list->next;
+    }
+
+    return len;
+}
+
 #endif // !LIST
 
 #endif // !BASE_H
