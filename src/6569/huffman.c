@@ -111,22 +111,20 @@ TreeLeaf *create_huffman_codes(char *str, unsigned long len) {
             *leaves_list = (LinkedList){0, leaves_list};
             break;
         }
-
-        if (i == 0)
-            __builtin_trap();
     }
 
     puts("here4");
     for (int i = 24; i >= 0; i--) {
         printf("%c\n", leaves[i]->data);
-        if (array[i] > 0)
-            push(leaves_list, leaves[i]);
+        if (array[leaves[i]->data - 'a'] > 0)
+            puts("here");
+        push(leaves_list, leaves[i]);
     }
 
     puts("here5");
     LinkedList *current = leaves_list;
     while (current) {
-        printf("%c \n", *(char *)current->data);
+        printf("%c \n", ((TreeLeaf *)current->data)->data);
         current = current->next;
     }
 
