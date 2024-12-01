@@ -59,6 +59,15 @@ void *pop(LinkedList *list) {
     return res;
 }
 
+void *pop_front(LinkedList **list_ref) {
+    void *result = get(*list_ref, 0);
+    LinkedList *head = (*list_ref)->next;
+    LIST_FREE(*list_ref);
+    *list_ref = head;
+
+    return result;
+}
+
 int list_length(LinkedList *list) {
     int len = 1;
 

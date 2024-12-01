@@ -31,31 +31,49 @@ typedef struct {
     void *right;
 } TreeNode;
 
-unsigned partition(void **array, unsigned lo, unsigned hi,
-                   int (*func)(void *, void *)) {
-    unsigned pivot = hi;
-    unsigned i = lo;
+unsigned partition(void **array, int lo, int hi, int (*func)(void *, void *)) {
+    int pivot = hi;
+    int i = lo;
     void *temp;
 
-    for (unsigned j = lo; j < hi; j++) {
-        if (func(array[pivot], array[i]) >= 0) {
-            temp = array[pivot];
-            array[pivot] = array[i];
-            array[i] = temp;
+    printf("pivot is - %u lo - %u  hi - %u \n", pivot, lo, hi);
+    printf("pivot is - %i\n", *(int *)array[pivot]);
+
+    for (int j = lo; j <= hi; j++) {
+        printf("before - %lu %i\n", array[j], *(int *)array[j]);
+    }
+    puts("");
+
+    for (int j = lo; j < hi; j++) {
+        if (func(array[j], array[pivot]) <= 0) {
+            temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
             i++;
         }
     }
+
+    puts("");
+    for (int j = lo; j <= hi; j++) {
+        printf("after 1 - %lu %i\n", array[j], *(int *)array[j]);
+    }
+    puts("");
 
     temp = array[hi];
     array[hi] = array[i];
     array[i] = temp;
 
-    return pivot;
+    printf("%u %i\n", i, *(int *)array[i]);
+    for (unsigned j = lo; j <= hi; j++) {
+        printf("after 2 - %lu %i\n", array[j], *(int *)array[j]);
+    }
+    puts("");
+
+    return i;
 }
 
-void quicksort(void **array, unsigned lo, unsigned hi,
-               int (*func)(void *, void *)) {
-    if (lo >= hi)
+void quicksort(void **array, int lo, int hi, int (*func)(void *, void *)) {
+    if (lo >= hi || lo < 0)
         return;
 
     unsigned p = partition(array, lo, hi, func);
@@ -64,8 +82,20 @@ void quicksort(void **array, unsigned lo, unsigned hi,
     quicksort(array, p, hi, func);
 }
 
+void bubblesort(void **array, unsigned long len, int (*func)(void *, void *)) {
+    for (unsigned i = 0; i < len - 1; i++) {
+        for (unsigned j = 0; j < len - i - 1; j++) {
+            if (func(array[j], array[j + 1]) > 0) {
+                void *temp = array[j + 1];
+                array[j + 1] = array[j];
+                array[j] = temp;
+            }
+        }
+    }
+}
+
 int compare_tree_nodes(void *lhs, void *rhs) {
-    return ((TreeLeaf *)lhs)->count - ((TreeLeaf *)rhs)->count;
+    return ((TreeGeneric *)lhs)->count - ((TreeGeneric *)rhs)->count;
 }
 
 void print_tree(TreeGeneric *tree, unsigned depth) {
@@ -107,7 +137,48 @@ TreeNode *create_tree_node(unsigned count, void *left, void *right) {
     return node;
 }
 
-TreeLeaf *create_huffman_codes(char *str, unsigned long len) {
+void insert_keeping_sorted(LinkedList **list, TreeGeneric *node) {
+    LinkedList *head = *list;
+
+    if (!(*list)) {
+        LinkedList *new_item = malloc(sizeof(LinkedList));
+        *new_item = (LinkedList){0, node};
+        *list = new_item;
+        return;
+    }
+
+    LinkedList *current = head->next;
+    LinkedList *previous = head;
+
+    if (((TreeGeneric *)previous->data)->count >= node->count) {
+        LinkedList *new_item = malloc(sizeof(LinkedList));
+        *new_item = (LinkedList){head, node};
+        *list = new_item;
+        return;
+    }
+
+    if (!current) {
+        LinkedList *new_item = malloc(sizeof(LinkedList));
+        *new_item = (LinkedList){0, node};
+        head->next = new_item;
+        return;
+    }
+
+    while (((TreeGeneric *)current->data)->count < node->count) {
+        previous = current;
+        current = current->next;
+
+        if (!current) {
+            break;
+        }
+    }
+
+    LinkedList *new_item = malloc(sizeof(LinkedList));
+    *new_item = (LinkedList){current, node};
+    previous->next = new_item;
+}
+
+TreeGeneric *create_huffman_codes(char *str, unsigned long len) {
     unsigned *array = malloc(sizeof(unsigned) * 26);
     memset(array, 0, sizeof(unsigned) * 26);
 
@@ -124,18 +195,18 @@ TreeLeaf *create_huffman_codes(char *str, unsigned long len) {
     for (unsigned i = 'a'; i <= 'z'; i++)
         leaves[i - 'a'] = create_tree_leaf(i, array[i - 'a']);
 
-    /*for (int i = 0; i <= 25; i++) {*/
-    /*    if (array[leaves[i]->data - 'a'] > 0)*/
-    /*        printf("%c\n", leaves[i]->data);*/
-    /*}*/
+    for (int i = 0; i <= 25; i++) {
+        if (array[leaves[i]->data - 'a'] > 0)
+            printf("%c - %u\n", leaves[i]->data, array[leaves[i]->data - 'a']);
+    }
 
     /*puts("here2");*/
-    quicksort((void **)leaves, 0, 25, compare_tree_nodes);
+    bubblesort((void **)leaves, 26, compare_tree_nodes);
 
-    /*puts("here3");*/
-    /*for (int i = 0; i <= 25; i++) {*/
-    /*    printf("%c\n", leaves[i]->data);*/
-    /*}*/
+    puts("here3");
+    for (int i = 0; i <= 25; i++) {
+        printf("%c\n", leaves[i]->data);
+    }
 
     int j = 0;
 
@@ -169,71 +240,32 @@ TreeLeaf *create_huffman_codes(char *str, unsigned long len) {
     LinkedList *stack_next = leaves_list->next;
     LinkedList *stack_next_next = stack_next->next;
 
-    while (list_length(stack_top) >= 2) {
-        /*printf("stack - %xl %xl %xl %i\n", stack_top, stack_next,*/
-        /*stack_next_next, list_length(stack_top));*/
-
-        TreeNode *new_node = malloc(sizeof(TreeNode));
-        TreeGeneric *left = stack_top->data;
-        TreeGeneric *right = stack_next->data;
-
-        print_tree(left, 0);
-        print_tree(right, 0);
-
-        *new_node = (TreeNode){
-            NT_Node,
-            left->count + right->count,
-            left,
-            right,
-        };
-
-        LinkedList *start = stack_next_next;
-
-        if (!stack_next_next) {
-            *stack_top = (LinkedList){stack_next->next, new_node};
-            break;
-        }
-
-        int set = 0;
-        LinkedList *current = stack_next_next;
-        LinkedList *previous = 0;
+    while (list_length(leaves_list) >= 2) {
+        printf(" -------------- \n");
+        LinkedList *current = leaves_list;
 
         while (current) {
-            TreeGeneric *t = current->data;
-
-            if (t->count >= new_node->count) {
-                LinkedList *new_item = malloc(sizeof(LinkedList));
-
-                if (previous) {
-                    previous->next = new_item;
-                    new_item->next = current;
-                    new_item->data = new_node;
-                } else {
-                    new_item->next = current;
-                    new_item->data = new_node;
-                }
-
-                set = 1;
-                break;
-            }
-
-            previous = current;
+            print_tree(current->data, 0);
             current = current->next;
         }
 
-        /**stack_top = (LinkedList){stack_next->next, new_node};*/
-        /*stack_next = stack_next_next;*/
-        /**/
-        /*if (stack_next) {*/
-        /*    stack_next_next = stack_next->next;*/
-        /*} else {*/
-        /*    stack_next_next = 0;*/
-        /*}*/
+        printf("\n");
+
+        TreeGeneric *node1 = pop_front(&leaves_list);
+        TreeGeneric *node2 = pop_front(&leaves_list);
+
+        /*print_tree(node1, 0);*/
+        /*print_tree(node2, 0);*/
+
+        TreeNode *new_node = malloc(sizeof(TreeNode));
+        *new_node =
+            (TreeNode){NT_Node, node1->count + node2->count, node1, node2};
+        insert_keeping_sorted(&leaves_list, (void *)new_node);
     }
 
-    print_tree(stack_top->data, 0);
+    print_tree(leaves_list->data, 0);
 
-    return 0;
+    return leaves_list->data;
 }
 
 int main() {
@@ -241,6 +273,26 @@ int main() {
     /*print_tree(a, 0);*/
     /**a = (TreeNode){NT_Node, 10, 0, 0};*/
 
+    /*srand(time(0));*/
+    /**/
+    /*unsigned long LEN = 10;*/
+    /*int **array = malloc(sizeof(int *) * LEN);*/
+    /**/
+    /*for (int i = 0; i < LEN; i++) {*/
+    /*    array[i] = malloc(sizeof(int));*/
+    /*    *array[i] = rand() % 100;*/
+    /*    printf("%i \n", *array[i]);*/
+    /*}*/
+    /**/
+    /*printf("\n");*/
+    /*quicksort(array, 0, LEN - 1, compare);*/
+    /**/
+    /*printf("\n");*/
+    /*for (int i = 0; i < LEN; i++) {*/
+    /*    printf("%i\n", *array[i]);*/
+    /*}*/
+
     char *str = "abacabadyyy";
+    /*char *str = "somerandomstring";*/
     create_huffman_codes(str, strlen(str));
 }
