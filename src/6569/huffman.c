@@ -220,19 +220,17 @@ void insert_keeping_sorted(LinkedList **list, TreeGeneric *node) {
 TreeGeneric *create_huffman_tree(char *str, unsigned long len) {
     unsigned *array = malloc(sizeof(unsigned) * 26);
     memset(array, 0, sizeof(unsigned) * 26);
-
     for (unsigned i = 0; i < len; i++)
         array[str[i] - 'a']++;
 
     TreeLeaf **leaves = malloc(sizeof(TreeLeaf) * 26);
-    for (unsigned i = 'a'; i <= 'z'; i++)
-        leaves[i - 'a'] = create_tree_leaf(i, array[i - 'a']);
+    for (unsigned i = 0; i < 26; i++)
+        leaves[i] = create_tree_leaf(i + 'a', array[i]);
 
     quicksort((void **)leaves, 0, 25, compare_tree_nodes);
 
-    int j = 0;
-
     LinkedList *leaves_list = malloc(sizeof(LinkedList));
+    int j = 0;
     for (int i = 0; i < 26; i++) {
         if (array[leaves[i]->data - 'a'] > 0) {
             *leaves_list = (LinkedList){0, leaves[i]};
@@ -316,7 +314,7 @@ char **construct_huffman_table(TreeGeneric *huffman_tree) {
     return result;
 }
 
-void huffman_code_str(char *str, unsigned long len, char **table) {
+void huffman_encode_str(char *str, unsigned long len, char **table) {
     unsigned longest_length = 0;
     unsigned unique_count = 0;
 
@@ -354,7 +352,7 @@ void huffman_code_str(char *str, unsigned long len, char **table) {
     puts(result);
 }
 
-char *get_input(char *path) {
+char *read_file(char *path) {
     FILE *f = fopen(path, "r");
 
     if (!f)
@@ -395,10 +393,10 @@ char *sanitize_input(char *str) {
 }
 
 int main() {
-    char *str = sanitize_input(get_input("input.txt"));
+    char *str = sanitize_input(read_file("input.txt"));
     size_t len = strlen(str);
 
     TreeGeneric *tree = create_huffman_tree(str, len);
     char **table = construct_huffman_table(tree);
-    huffman_code_str(str, len, table);
+    huffman_encode_str(str, len, table);
 }
