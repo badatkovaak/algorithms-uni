@@ -97,6 +97,8 @@ char *read_file(char *path) {
     return buffer;
 }
 
+char **split_at(char *str, char separator) { return 0; }
+
 int main() {
     unsigned *codes = malloc(26 * sizeof(unsigned));
     memset(codes, 0, 26 * sizeof(unsigned));

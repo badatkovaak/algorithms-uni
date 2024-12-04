@@ -1,9 +1,5 @@
-#ifndef BASE_H
-#define BASE_H
-
-#define magic(c) sizeof(c)
-
-#ifdef LIST
+#ifndef LINKED_LIST_H
+#define LINKED_LIST_H
 
 #ifndef LIST_MALLOC
 #define LIST_MALLOC(x) malloc(x)
@@ -79,6 +75,4 @@ int list_length(LinkedList *list) {
     return len;
 }
 
-#endif // !LIST
-
-#endif // !BASE_H
+#endif // !LINKED_LIST_H
