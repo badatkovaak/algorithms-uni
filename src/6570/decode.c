@@ -12,7 +12,7 @@ htable_item *build_huffman_table(unsigned *codes, unsigned longest_code_len) {
     assert(longest_code_len < 26);
 
     unsigned a = (1 << longest_code_len);
-    printf("longest is %u ; %b\n", longest_code_len, a);
+    /*printf("longest is %u ; %b\n", longest_code_len, a);*/
 
     unsigned long htable_size = a * sizeof(htable_item);
     htable_item *table = malloc(htable_size);
@@ -24,7 +24,7 @@ htable_item *build_huffman_table(unsigned *codes, unsigned longest_code_len) {
         if (!code)
             continue;
 
-        printf("code is %b\n", code);
+        /*printf("code is %b\n", code);*/
 
         int count = 0;
         unsigned lower_bound = code;
@@ -45,9 +45,9 @@ htable_item *build_huffman_table(unsigned *codes, unsigned longest_code_len) {
         }
     }
 
-    for (unsigned i = 0; i < a; i++) {
-        printf("%b %c %u\n", i, table[i].data, table[i].code_len);
-    }
+    /*for (unsigned i = 0; i < a; i++) {*/
+    /*    printf("%b %c %u\n", i, table[i].data, table[i].code_len);*/
+    /*}*/
 
     return table;
 }
@@ -57,8 +57,6 @@ char *decode_str(htable_item *table, char *encoded, unsigned longest_code_len) {
     char *decoded = malloc(encoded_len);
     memset(decoded, 0, encoded_len);
 
-    /*char *window = malloc(longest_code_len);*/
-    /*memset(window, 0, longest_code_len);*/
     unsigned item_code = 0;
     unsigned index = 0;
 
@@ -70,6 +68,8 @@ char *decode_str(htable_item *table, char *encoded, unsigned longest_code_len) {
             item_code = (item_code << 1) + (encoded[i + j] == '1');
         }
 
+        /*printf("item code is %b\n", item_code);*/
+
         htable_item item = table[item_code];
         decoded[index++] = item.data;
         i += item.code_len;
@@ -78,6 +78,23 @@ char *decode_str(htable_item *table, char *encoded, unsigned longest_code_len) {
     printf("%s\n", decoded);
 
     return decoded;
+}
+
+char *read_file(char *path) {
+    FILE *f = fopen(path, "r");
+
+    if (!f)
+        return 0;
+
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char *buffer = malloc(size + 1);
+    buffer[size] = '\0';
+
+    fread(buffer, size, 1, f);
+    return buffer;
 }
 
 int main() {
@@ -89,10 +106,11 @@ int main() {
     /*codes[3] = 0b1001;*/
     codes[0] = 0b10;
     codes[1] = 0b110;
-    codes[2] = 0b1111;
-    codes[3] = 0b1110;
+    codes[2] = 0b1110;
+    codes[3] = 0b1111;
 
-    build_huffman_table(codes, 3);
+    htable_item *table = build_huffman_table(codes, 3);
+    char *res = decode_str(table, "01001100100111", 3);
 
     return 0;
 }
