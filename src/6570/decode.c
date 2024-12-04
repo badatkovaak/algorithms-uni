@@ -52,6 +52,34 @@ htable_item *build_huffman_table(unsigned *codes, unsigned longest_code_len) {
     return table;
 }
 
+char *decode_str(htable_item *table, char *encoded, unsigned longest_code_len) {
+    unsigned long encoded_len = strlen(encoded);
+    char *decoded = malloc(encoded_len);
+    memset(decoded, 0, encoded_len);
+
+    /*char *window = malloc(longest_code_len);*/
+    /*memset(window, 0, longest_code_len);*/
+    unsigned item_code = 0;
+    unsigned index = 0;
+
+    int i = 0;
+    while (i < encoded_len) {
+        item_code = 0;
+
+        for (int j = 0; j < longest_code_len; j++) {
+            item_code = (item_code << 1) + (encoded[i + j] == '1');
+        }
+
+        htable_item item = table[item_code];
+        decoded[index++] = item.data;
+        i += item.code_len;
+    }
+
+    printf("%s\n", decoded);
+
+    return decoded;
+}
+
 int main() {
     unsigned *codes = malloc(26 * sizeof(unsigned));
     memset(codes, 0, 26 * sizeof(unsigned));
