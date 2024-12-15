@@ -16,14 +16,22 @@ typedef struct {
     void *data;
 } LinkedList;
 
-void push(LinkedList *list, void *value) {
-    while (list->next) {
-        list = list->next;
+void push(LinkedList **list, void *value) {
+    if (!(*list)) {
+        *list = malloc(sizeof(LinkedList));
+        **list = (LinkedList){0, value};
+        return;
+    }
+
+    LinkedList *list_item = *list;
+
+    while (list_item->next) {
+        list_item = list_item->next;
     }
 
     LinkedList *new_elem = LIST_MALLOC(sizeof(LinkedList));
     *new_elem = (LinkedList){0, value};
-    list->next = new_elem;
+    list_item->next = new_elem;
 }
 
 void *get(LinkedList *list, unsigned index) {
