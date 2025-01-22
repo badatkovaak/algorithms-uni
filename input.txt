@@ -1,6 +1,14 @@
-4 14
-a: 0
-b: 10
-c: 110
-d: 111
-01001100100111
+5
+12
+add world
+add HellO
+check 4
+find World
+find world
+del world
+check 4
+del HellO
+add luck
+add GooD
+check 2
+del good
