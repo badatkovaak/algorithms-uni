@@ -2,7 +2,7 @@ INCLUDE_DIR := include
 INCLUDE_FLAG := -I./${INCLUDE_DIR}
 
 CC := clang
-CFLAGS := --std=c99 -g -O0
+CFLAGS := --std=c23 -g -O0
 C_WARNING_FLAGS := -Wall -Wextra -Wpedantic -Wshadow -Wno-unused-function -Wcast-qual -Wignored-qualifiers -Wno-comment -Wsign-compare -Wno-unknown-warning-option -Wno-psabi -Wno-mismatched-new-delete -Wimplicit-fallthrough
 
 

@@ -1,9 +1,11 @@
 #ifdef HEAP_H
 #define HEAP_H
 
+#include <stdint.h>
+
 typedef struct {
     void **data;
-    unsigned long len;
+    uint64_t len;
 } heap_array;
 
 heap_array construct_binary_heap(heap_array array,

@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,8 +21,8 @@ void push(LinkedList *list, void *value) {
     list->next = new_elem;
 }
 
-void *get(LinkedList *list, unsigned index) {
-    unsigned i = 0;
+void *get(LinkedList *list, uint64_t index) {
+    uint64_t i = 0;
 
     while (i < index) {
         if (list->next)
@@ -73,24 +74,24 @@ int list_length(LinkedList *list) {
 #define NT_Leaf 2ul
 
 typedef struct {
-    unsigned long type;
-    unsigned long count;
+    uint64_t type;
+    uint64_t count;
 } TreeGeneric;
 
 typedef struct {
-    unsigned long type;
-    unsigned long count;
+    uint64_t type;
+    uint64_t count;
     char data;
 } TreeLeaf;
 
 typedef struct {
-    unsigned long type;
-    unsigned long count;
+    uint64_t type;
+    uint64_t count;
     void *left;
     void *right;
 } TreeNode;
 
-unsigned partition(void **array, int lo, int hi, int (*func)(void *, void *)) {
+uint64_t partition(void **array, int lo, int hi, int (*func)(void *, void *)) {
     int pivot = hi;
     int i = lo;
     void *temp;
@@ -115,15 +116,15 @@ void quicksort(void **array, int lo, int hi, int (*func)(void *, void *)) {
     if (lo >= hi || lo < 0)
         return;
 
-    unsigned p = partition(array, lo, hi, func);
+    uint64_t p = partition(array, lo, hi, func);
 
     quicksort(array, lo, p - 1, func);
     quicksort(array, p, hi, func);
 }
 
-void bubblesort(void **array, unsigned long len, int (*func)(void *, void *)) {
-    for (unsigned i = 0; i < len - 1; i++) {
-        for (unsigned j = 0; j < len - i - 1; j++) {
+void bubblesort(void **array, uint64_t len, int (*func)(void *, void *)) {
+    for (uint64_t i = 0; i < len - 1; i++) {
+        for (uint64_t j = 0; j < len - i - 1; j++) {
             if (func(array[j], array[j + 1]) > 0) {
                 void *temp = array[j + 1];
                 array[j + 1] = array[j];
@@ -137,8 +138,8 @@ int compare_tree_nodes(void *lhs, void *rhs) {
     return ((TreeGeneric *)lhs)->count - ((TreeGeneric *)rhs)->count;
 }
 
-void print_tree(TreeGeneric *tree, unsigned depth) {
-    for (unsigned i = 0; i < depth; i++) {
+void print_tree(TreeGeneric *tree, uint64_t depth) {
+    for (uint64_t i = 0; i < depth; i++) {
         printf("\t");
     }
 
@@ -164,13 +165,13 @@ void print_tree(TreeGeneric *tree, unsigned depth) {
     return;
 }
 
-TreeLeaf *create_tree_leaf(char data, unsigned count) {
+TreeLeaf *create_tree_leaf(char data, uint64_t count) {
     TreeLeaf *leaf = malloc(sizeof(TreeLeaf));
     *leaf = (TreeLeaf){NT_Leaf, count, data};
     return leaf;
 }
 
-TreeNode *create_tree_node(unsigned count, void *left, void *right) {
+TreeNode *create_tree_node(uint64_t count, void *left, void *right) {
     TreeNode *node = malloc(sizeof(TreeNode));
     *node = (TreeNode){NT_Node, count, left, right};
     return node;
@@ -217,14 +218,14 @@ void insert_keeping_sorted(LinkedList **list, TreeGeneric *node) {
     previous->next = new_item;
 }
 
-TreeGeneric *create_huffman_tree(char *str, unsigned long len) {
-    unsigned *array = malloc(sizeof(unsigned) * 26);
-    memset(array, 0, sizeof(unsigned) * 26);
-    for (unsigned i = 0; i < len; i++)
+TreeGeneric *create_huffman_tree(char *str, uint64_t len) {
+    uint64_t *array = malloc(sizeof(unsigned) * 26);
+    memset(array, 0, sizeof(uint64_t) * 26);
+    for (uint64_t i = 0; i < len; i++)
         array[str[i] - 'a']++;
 
     TreeLeaf **leaves = malloc(sizeof(TreeLeaf) * 26);
-    for (unsigned i = 0; i < 26; i++)
+    for (uint64_t i = 0; i < 26; i++)
         leaves[i] = create_tree_leaf(i + 'a', array[i]);
 
     quicksort((void **)leaves, 0, 25, compare_tree_nodes);
@@ -258,7 +259,7 @@ TreeGeneric *create_huffman_tree(char *str, unsigned long len) {
 }
 
 char *code_to_str(int code) {
-    unsigned len = 1;
+    uint64_t len = 1;
     int temp = code;
 
     while (temp > 1) {
@@ -314,13 +315,13 @@ char **construct_huffman_table(TreeGeneric *huffman_tree) {
     return result;
 }
 
-void huffman_encode_str(char *str, unsigned long len, char **table) {
-    unsigned longest_length = 0;
-    unsigned unique_count = 0;
+void huffman_encode_str(char *str, uint64_t len, char **table) {
+    uint64_t longest_length = 0;
+    uint64_t unique_count = 0;
 
     for (int i = 0; i < 26; i++) {
         if (table[i] != 0 && table[i][0] != 0) {
-            unsigned long curr_len = strlen(table[i]);
+            uint64_t curr_len = strlen(table[i]);
 
             if (curr_len > longest_length)
                 longest_length = curr_len;
@@ -331,11 +332,11 @@ void huffman_encode_str(char *str, unsigned long len, char **table) {
 
     char *result = malloc(len * longest_length + 1);
     result[len * longest_length] = '\0';
-    unsigned long total_length = 0;
+    uint64_t total_length = 0;
 
     for (int i = 0; i < len; i++) {
         char *curr_code = table[str[i] - 'a'];
-        unsigned long curr_len = strlen(curr_code);
+        uint64_t curr_len = strlen(curr_code);
 
         for (int j = 0; j < curr_len; j++) {
             result[total_length++] = curr_code[j];

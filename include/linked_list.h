@@ -1,22 +1,42 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
-#ifndef LIST_MALLOC
-#define LIST_MALLOC(x) malloc(x)
-#include <stdlib.h>
-#endif // !LIST_MALLOC
-
-#ifndef LIST_FREE
-#define LIST_FREE(x) free(x)
-#include <stdlib.h>
-#endif // !LIST_FREE
+#include <stdint.h>
 
 typedef struct {
     void *next;
     void *data;
 } LinkedList;
 
-void push(LinkedList **list, void *value) {
+void list_push(LinkedList **list, void *value);
+
+void *list_get(LinkedList *list, uint64_t index);
+
+void *list_pop(LinkedList *list);
+
+void *list_pop_front(LinkedList **list_ref);
+
+int list_length(LinkedList *list);
+
+void list_free(LinkedList *list);
+
+void list_free_with_data(LinkedList *list);
+
+#endif // !LINKED_LIST_H
+
+#ifdef LIST_IMPLEMENTATION
+
+#include <stdlib.h>
+
+#ifndef LIST_MALLOC
+#define LIST_MALLOC(x) malloc(x)
+#endif // !LIST_MALLOC
+
+#ifndef LIST_FREE
+#define LIST_FREE(x) free(x)
+#endif // !LIST_FREE
+
+void list_push(LinkedList **list, void *value) {
     if (!(*list)) {
         *list = malloc(sizeof(LinkedList));
         **list = (LinkedList){0, value};
@@ -34,8 +54,15 @@ void push(LinkedList **list, void *value) {
     list_item->next = new_elem;
 }
 
-void *get(LinkedList *list, unsigned index) {
-    unsigned i = 0;
+void list_insert_front(LinLinkedList **list, void *value) {
+    if (!list) {
+        *list = malloc(sizeof(LinkedList));
+        **list = (LinkedList){0, value};
+    }
+}
+
+void *list_get(LinkedList *list, uint64_t index) {
+    uint64_t i = 0;
 
     while (i < index) {
         if (list->next)
@@ -47,7 +74,7 @@ void *get(LinkedList *list, unsigned index) {
     return list->data;
 }
 
-void *pop(LinkedList *list) {
+void *list_pop(LinkedList *list) {
     LinkedList *current = list;
     LinkedList *next = list->next;
 
@@ -63,7 +90,7 @@ void *pop(LinkedList *list) {
     return res;
 }
 
-void *pop_front(LinkedList **list_ref) {
+void *list_pop_front(LinkedList **list_ref) {
     void *result = get(*list_ref, 0);
     LinkedList *head = (*list_ref)->next;
     LIST_FREE(*list_ref);
@@ -83,4 +110,23 @@ int list_length(LinkedList *list) {
     return len;
 }
 
-#endif // !LINKED_LIST_H
+void list_free(LinkedList *list) {
+    if (!list)
+        return;
+
+    list_free(list->next);
+    LIST_FREE(list);
+}
+
+void list_free_with_data(LinkedList *list) {
+    if (!list)
+        return;
+
+    if (list->data)
+        LIST_FREE(list->data);
+
+    list_free_with_data(list->next);
+    LIST_FREE(list);
+}
+
+#endif // LIST_IMPLEMENTATION

@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +30,8 @@ void push(LinkedList **list, void *value) {
     list_item->next = new_elem;
 }
 
-void *get(LinkedList *list, unsigned index) {
-    unsigned i = 0;
+void *get(LinkedList *list, uint64_t index) {
+    uint64_t i = 0;
 
     while (i < index) {
         if (list->next)
@@ -82,13 +83,13 @@ int list_length(LinkedList *list) {
 
 typedef struct {
     char *data;
-    unsigned len;
-    unsigned capacity;
+    uint64_t len;
+    uint64_t capacity;
 } String;
 
 String *create_from_null_terminated(char *str) {
-    unsigned len = strlen(str);
-    unsigned capacity = 1;
+    uint64_t len = strlen(str);
+    uint64_t capacity = 1;
     while (capacity <= len) {
         capacity = capacity << 1;
     }
@@ -138,30 +139,30 @@ void push_char(String **str, char c) {
 
 typedef struct {
     char data;
-    unsigned code_len;
+    uint64_t code_len;
 } htable_item;
 
-htable_item *build_huffman_table(unsigned *codes, unsigned longest_code_len) {
-    unsigned a = (1 << longest_code_len);
+htable_item *build_huffman_table(uint64_t *codes, uint64_t longest_code_len) {
+    uint64_t a = (1 << longest_code_len);
 
-    unsigned long htable_size = a * sizeof(htable_item);
+    uint64_t htable_size = a * sizeof(htable_item);
     htable_item *table = malloc(htable_size);
     memset(table, 0, htable_size);
 
     for (int i = 0; i < 26; i++) {
-        unsigned code = codes[i];
+        uint64_t code = codes[i];
 
         if (!code)
             continue;
 
         int count = 0;
-        unsigned lower_bound = code;
+        uint64_t lower_bound = code;
         while (a > lower_bound) {
             lower_bound = lower_bound << 1;
             count++;
         }
 
-        unsigned upper_bound = code;
+        uint64_t upper_bound = code;
         while (a > upper_bound)
             upper_bound = (upper_bound << 1) + 1;
 
@@ -176,13 +177,13 @@ htable_item *build_huffman_table(unsigned *codes, unsigned longest_code_len) {
     return table;
 }
 
-char *decode_str(htable_item *table, char *encoded, unsigned longest_code_len) {
-    unsigned long encoded_len = strlen(encoded);
+char *decode_str(htable_item *table, char *encoded, uint64_t longest_code_len) {
+    uint64_t encoded_len = strlen(encoded);
     char *decoded = malloc(encoded_len);
     memset(decoded, 0, encoded_len);
 
-    unsigned item_code = 0;
-    unsigned index = 0;
+    uint64_t item_code = 0;
+    uint64_t index = 0;
 
     int i = 0;
     while (i < encoded_len) {
@@ -219,7 +220,7 @@ char *read_file(char *path) {
     return buffer;
 }
 
-LinkedList *split_at(char *str, unsigned long len, char separator) {
+LinkedList *split_at(char *str, uint64_t len, char separator) {
     LinkedList *pieces_list = 0;
 
     String *current_piece = 0;
@@ -242,9 +243,9 @@ LinkedList *split_at(char *str, unsigned long len, char separator) {
     return pieces_list;
 }
 
-unsigned chars_to_code(char *str) {
-    unsigned i = 0;
-    unsigned result = 1;
+uint64_t chars_to_code(char *str) {
+    uint64_t i = 0;
+    uint64_t result = 1;
 
     while (str[i]) {
         if (str[i] != '1' && str[i] != '0') {
@@ -259,14 +260,14 @@ unsigned chars_to_code(char *str) {
     return result;
 }
 
-unsigned *create_codes_table(LinkedList *code_strs) {
-    unsigned *table = malloc(sizeof(unsigned) * 26);
-    memset(table, 0, sizeof(unsigned) * 26);
+uint64_t *create_codes_table(LinkedList *code_strs) {
+    uint64_t *table = malloc(sizeof(uint64_t) * 26);
+    memset(table, 0, sizeof(uint64_t) * 26);
 
     while (code_strs->next) {
         String *str = code_strs->data;
         LinkedList *s = split_at(str->data, str->len, ':');
-        unsigned table_index = ((String *)s->data)->data[0];
+        uint64_t table_index = ((String *)s->data)->data[0];
         char *code_str = ((String *)((LinkedList *)s->next)->data)->data;
         table[table_index - 'a'] = chars_to_code(code_str);
         code_strs = code_strs->next;
@@ -280,7 +281,7 @@ int main() {
     LinkedList *lines = split_at(input, strlen(input), '\n');
 
     LinkedList *lines_from_2 = lines->next;
-    unsigned *codes_table = create_codes_table(lines_from_2);
+    uint64_t *codes_table = create_codes_table(lines_from_2);
 
     LinkedList *lines_last = lines_from_2;
     while (lines_last->next) {
@@ -289,14 +290,14 @@ int main() {
 
     char *encoded_string = ((String *)lines_last->data)->data;
 
-    unsigned longest_code_len = 0;
+    uint64_t longest_code_len = 0;
     for (int i = 0; i < 26; i++) {
         if (!codes_table[i]) {
             continue;
         }
 
-        unsigned code_len = 0;
-        unsigned temp = 1;
+        uint64_t code_len = 0;
+        uint64_t temp = 1;
 
         while (temp <= codes_table[i]) {
             temp = temp << 1;
