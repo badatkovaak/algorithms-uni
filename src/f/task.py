@@ -1,45 +1,46 @@
-def merge(A, B, begin, mid, end):
+from typing import List
+
+
+def merge(A, B, begin, mid, end) -> int:
     i = begin
     j = mid
-
-    print(i, j)
-    print("before", B)
+    count = 0
 
     for k in range(begin, end):
         if i < mid and (j >= end or A[i] <= A[j]):
-            print("picked 1", A[i], i, j, k)
             B[k] = A[i]
             i += 1
         else:
-            print("picked 2", A[j], i, j, k)
             B[k] = A[j]
+            if i < mid:
+                count += mid - i
             j += 1
-    print("after", B)
+
+    return count
 
 
-def merge_split(A, B, begin, end):
+def merge_split(A, B, begin, end) -> int:
     if end - begin <= 1:
-        return
+        return 0
 
     mid = (begin + end) // 2
 
-    print(B, begin, mid, end)
+    count = merge_split(B, A, begin, mid) + merge_split(B, A, mid, end)
 
-    merge_split(A, B, begin, mid)
-    merge_split(A, B, mid, end)
+    count += merge(A, B, begin, mid, end)
 
-    merge(A, B, begin, mid, end)
+    return count
 
 
-def merge_sort(A):
+def count_inversions(A) -> int:
     B = [i for i in A]
-    merge_split(A, B, 0, len(A))
-    return B
+    C = [i for i in A]
+    return merge_split(C, B, 0, len(A))
 
 
 with open("input.txt") as f:
     s = f.readlines()
 
+
 array = list(map(int, s[1].split(" ")))
-print(array)
-print(merge_sort(array))
+print(count_inversions(array))
